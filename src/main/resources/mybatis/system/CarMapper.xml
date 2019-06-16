@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bootdo.system.dao.CarDao">
+
+	<select id="get" resultType="com.bootdo.system.domain.CarDO">
+		select `car_id`,`car_name`,`car_type` from test_car where car_id = #{value}
+	</select>
+
+	<select id="list" resultType="com.bootdo.system.domain.CarDO">
+		select `car_id`,`car_name`,`car_type` from test_car
+        <where>  
+		  		  <if test="carId != null and carId != ''"> and car_id = #{carId} </if>
+		  		  <if test="carName != null and carName != ''"> and car_name like CONCAT('%',#{carName},'%')</if>
+		  		  <if test="carType != null and carType != ''"> and car_type = #{carType} </if>
+		  		</where>
+        <choose>
+            <when test="sort != null and sort.trim() != ''">
+                order by ${sort} ${order}
+            </when>
+			<otherwise>
+                order by car_id desc
+			</otherwise>
+        </choose>
+		<if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if>
+	</select>
+	
+ 	<select id="count" resultType="int">
+		select count(*) from test_car
+		 <where>  
+		  		  <if test="carId != null and carId != ''"> and car_id = #{carId} </if>
+		  		  <if test="carName != null and carName != ''"> and car_name like CONCAT('%',#{carName},'%') </if>
+		  		  <if test="carType != null and carType != ''"> and car_type = #{carType} </if>
+		  		</where>
+	</select>
+	 
+	<insert id="save" parameterType="com.bootdo.system.domain.CarDO" useGeneratedKeys="true" keyProperty="carId">
+		insert into test_car
+		(
+			`car_name`, 
+			`car_type`
+		)
+		values
+		(
+			#{carName}, 
+			#{carType}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.bootdo.system.domain.CarDO">
+		update test_car 
+		<set>
+			<if test="carName != null">`car_name` = #{carName}, </if>
+			<if test="carType != null">`car_type` = #{carType}</if>
+		</set>
+		where car_id = #{carId}
+	</update>
+	
+	<delete id="remove">
+		delete from test_car where car_id = #{value}
+	</delete>
+	
+	<delete id="batchRemove">
+		delete from test_car where car_id in 
+		<foreach item="carId" collection="array" open="(" separator="," close=")">
+			#{carId}
+		</foreach>
+	</delete>
+
+</mapper>
